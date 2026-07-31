@@ -1,38 +1,31 @@
 # Shomakal Air Service — Coolify Deployment Stack
 # Builds from source. Coolify will clone the repo and build Docker images locally.
-#
-# Services:
-#   - postgres  (PostgreSQL 16)
-#   - redis     (Redis 7)
-#   - meilisearch (Meilisearch v1.12)
-#   - backend   (NestJS API on port 4000)
-#   - frontend  (Next.js on port 3000)
+# Coolify handles routing through its proxy — no host port mappings needed.
 
 services:
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: shomakal-backend
     restart: always
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       BACKEND_HOST: 0.0.0.0
       BACKEND_PORT: 4000
       DATABASE_URL: ${DATABASE_URL:-postgresql://shomakal:${POSTGRES_PASSWORD:-shomakal}@postgres:5432/shomakal?schema=public}
-      REDIS_HOST: ${REDIS_HOST:-redis}
-      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-access}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-refresh}
-      JWT_ACCESS_EXPIRY: ${JWT_ACCESS_EXPIRY:-15m}
-      JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY:-7d}
+      JWT_ACCESS_EXPIRY: 15m
+      JWT_REFRESH_EXPIRY: 7d
       FRONTEND_URL: ${FRONTEND_URL:-https://shomakal.com}
-      ADMIN_URL: ${ADMIN_URL:-https://shomakal.com}
+      ADMIN_URL: ${FRONTEND_URL:-https://shomakal.com}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
       EMAIL_FROM: ${EMAIL_FROM:-noreply@shomakal.com}
-      MEILISEARCH_HOST: ${MEILISEARCH_HOST:-http://meilisearch:7700}
+      MEILISEARCH_HOST: http://meilisearch:7700
       MEILISEARCH_API_KEY: ${MEILISEARCH_API_KEY:-}
     depends_on:
       postgres:
@@ -50,13 +43,9 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: shomakal-frontend
     restart: always
     environment:
-      BACKEND_URL: ${BACKEND_URL:-http://backend:4000}
-      NEXT_PUBLIC_SITE_URL: ${FRONTEND_URL:-https://shomakal.com}
-    ports:
-      - '3000:3000'
+      BACKEND_URL: http://backend:4000
     depends_on:
       backend:
         condition: service_started
@@ -69,7 +58,7 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: shomakal-postgres
+    restart: always
     environment:
       POSTGRES_USER: shomakal
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shomakal}
@@ -84,7 +73,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: shomakal-redis
+    restart: always
     volumes:
       - redis_data:/data
     healthcheck:
@@ -95,7 +84,7 @@ services:
 
   meilisearch:
     image: getmeili/meilisearch:v1.12
-    container_name: shomakal-meilisearch
+    restart: always
     environment:
       MEILI_MASTER_KEY: ${MEILISEARCH_API_KEY:-masterKey}
       MEILI_ENV: production
