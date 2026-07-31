@@ -1,4 +1,4 @@
-# Override for local development — build from source instead of pulling ghcr.io images.
+# Override for local development — build from source.
 # Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 
 services:
@@ -6,10 +6,10 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    image: shomakal-air-service-backend:dev
+    image: shomakal-backend:dev
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    image: shomakal-air-service-frontend:dev
+    image: shomakal-frontend:dev
