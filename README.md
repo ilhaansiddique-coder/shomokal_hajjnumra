@@ -1,4 +1,4 @@
-# Flyngo — Tours & Travels Platform
+# Shomakal Air Service Platform
 
 Enterprise-grade, SaaS-ready travel operating system. Single-tenant deployment with full multi-tenant architecture built-in.
 
