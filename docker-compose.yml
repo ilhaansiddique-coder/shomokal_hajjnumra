@@ -8,6 +8,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     restart: always
+    expose:
+      - '4000'
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       BACKEND_HOST: 0.0.0.0
@@ -44,6 +46,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     restart: always
+    expose:
+      - '3000'
     environment:
       BACKEND_URL: http://backend:4000
       NEXT_PUBLIC_SITE_URL: ${FRONTEND_URL:-https://shomakal.com}
