@@ -11,12 +11,12 @@ import { ThemeToggle } from '@/components/ui/theme-toggle';
 import logoImg from '@/images/shomakal_logo.jpeg';
 
 const navItems = [
-  { label: 'Home', href: '/' },
-  { label: 'Hajj & Umrah', href: '/tours' },
-  { label: 'Tours', href: '/tours' },
-  { label: 'Hotels', href: '/hotels' },
-  { label: 'Tickets', href: '/flights' },
-  { label: 'Visa', href: '/visa' },
+  { label: 'Flight Radar & Corridors', href: '/#world-flight-radar' },
+  { label: 'Curated Stays', href: '/hotels' },
+  { label: 'Visa & Clearances', href: '/visa' },
+  { label: 'Sacred Pilgrimages', href: '/tours' },
+  { label: 'Private Charters', href: '/flights' },
+  { label: 'Dispatch Journal', href: '/blog' },
 ];
 
 export function Header() {
@@ -59,12 +59,17 @@ export function Header() {
               priority
               className="rounded-xl object-contain w-11 h-11 transition-transform group-hover:scale-105"
             />
-            <span
-              className="font-bold text-lg tracking-wide hidden sm:inline-block transition-colors"
-              style={{ color: 'var(--color-header-text)' }}
-            >
-              Shomakal Air Service
-            </span>
+            <div className="flex flex-col">
+              <span
+                className="font-bold text-lg tracking-wide hidden sm:inline-block leading-tight transition-colors"
+                style={{ color: 'var(--color-header-text)' }}
+              >
+                Shomakal
+              </span>
+              <span className="font-bold text-[10px] tracking-widest uppercase hidden sm:inline-block text-[#83d99d]">
+                Aviation &amp; Expeditions
+              </span>
+            </div>
           </Link>
           <nav className="hidden md:flex gap-8">
             {navItems.map((item) => {
@@ -73,7 +78,7 @@ export function Header() {
                 : pathname.startsWith(item.href);
               return (
                 <Link
-                  key={item.href}
+                  key={`${item.label}-${item.href}`}
                   href={item.href}
                   className={cn(
                     'text-sm tracking-[0.05em] font-semibold transition-colors',
@@ -217,7 +222,7 @@ export function Header() {
                 const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
                 return (
                   <Link
-                    key={item.href}
+                    key={`${item.label}-${item.href}`}
                     href={item.href}
                     className={cn(
                       'px-4 py-4 rounded-xl text-base font-semibold transition-colors',

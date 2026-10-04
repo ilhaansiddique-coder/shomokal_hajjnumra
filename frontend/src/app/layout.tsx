@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Playfair_Display, Hanken_Grotesk } from 'next/font/google';
+import { Playfair_Display, Hanken_Grotesk, Plus_Jakarta_Sans } from 'next/font/google';
 import { Providers } from '@/components/providers';
 import { Header } from '@/components/layout/header/header';
 import { MainContent } from '@/components/layout/main-content';
@@ -9,8 +9,14 @@ import '@/styles/globals.css';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
-  weight: ['600', '700'],
+  weight: ['400', '600', '700', '900'],
   variable: '--font-playfair',
+});
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+  variable: '--font-jakarta',
 });
 
 const hanken = Hanken_Grotesk({
@@ -38,6 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body
         className={cn(
           playfair.variable,
+          plusJakarta.variable,
           hanken.variable,
           'font-sans antialiased bg-surface text-on-surface'
         )}
