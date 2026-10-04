@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import { Search, Menu, X, User, LogOut } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth.store';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
-import logoImg from '@/images/suitcase_icon_transparent.png';
+import logoImg from '@/images/shomakal_logo.jpeg';
 
 const navItems = [
   { label: 'Home', href: '/' },
@@ -50,15 +50,21 @@ export function Header() {
     >
       <div className="flex justify-between items-center px-16 max-w-[1440px] mx-auto h-full">
         <div className="flex items-center gap-12">
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center gap-3 group">
             <Image
               src={logoImg}
               alt="Shomakal Air Service"
-              width={120}
+              width={48}
               height={48}
               priority
-              className="rounded-xl object-cover w-auto h-auto"
+              className="rounded-xl object-contain w-11 h-11 transition-transform group-hover:scale-105"
             />
+            <span
+              className="font-bold text-lg tracking-wide hidden sm:inline-block transition-colors"
+              style={{ color: 'var(--color-header-text)' }}
+            >
+              Shomakal Air Service
+            </span>
           </Link>
           <nav className="hidden md:flex gap-8">
             {navItems.map((item) => {

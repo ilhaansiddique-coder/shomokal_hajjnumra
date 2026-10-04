@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Globe, Share2 } from 'lucide-react';
-import logoImg from '@/images/suitcase_icon_transparent.png';
+import logoImg from '@/images/shomakal_logo.jpeg';
 
 const footerNav = [
   { label: 'Privacy Policy', href: '/privacy' },
@@ -24,10 +24,13 @@ export function Footer() {
             <Image
               src={logoImg}
               alt="Shomakal Air Service"
-              width={120}
+              width={40}
               height={40}
-              className="rounded-lg object-cover w-auto h-auto"
+              className="rounded-lg object-contain w-10 h-10"
             />
+            <span className="font-bold text-base tracking-wide text-on-surface">
+              Shomakal Air Service
+            </span>
           </Link>
           <p className="text-xs text-on-surface-variant">&copy; {new Date().getFullYear()} Shomakal Air Service. All rights reserved.</p>
         </div>

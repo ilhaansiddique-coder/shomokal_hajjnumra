@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { api } from '@/lib/api';
-import logoImg from '@/images/suitcase_icon_transparent.png';
+import logoImg from '@/images/shomakal_logo.jpeg';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center justify-center mb-6">
-            <Image src={logoImg} alt="Shomakal Air Service" width={56} height={56} className="rounded-xl object-cover" />
+            <Image src={logoImg} alt="Shomakal Air Service" width={64} height={64} className="rounded-xl object-contain w-16 h-16 shadow-md" />
           </Link>
           <h1 className="font-display text-3xl font-bold text-on-surface">Forgot your password?</h1>
           <p className="mt-2 text-on-surface-variant">
