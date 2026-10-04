@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Company Profile',
-  description: 'Company Profile of Shomakal Air Service — Aviation & Expeditions.',
+  description: 'Company Profile of Shomakal Air Service.',
 };
 
 export default function CompanyProfilePage() {
@@ -22,7 +22,7 @@ export default function CompanyProfilePage() {
             Company Profile
           </h1>
           <p className="text-base text-[#bec9be] max-w-3xl leading-relaxed">
-            Shomakal Air Service (Aviation &amp; Expeditions Ltd.) is an international aviation operator, 
+            Shomakal Air Service Ltd. is an international aviation operator, 
             diplomatic clearance facilitator, and premier pilgrimage concierge based in Dhaka, Bangladesh.
           </p>
         </div>

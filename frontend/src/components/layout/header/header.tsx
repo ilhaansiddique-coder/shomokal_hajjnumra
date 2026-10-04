@@ -71,7 +71,7 @@ export function Header() {
                 Shomakal
               </span>
               <span className="font-bold text-[9px] tracking-widest uppercase hidden sm:inline-block text-[#83d99d]">
-                Aviation &amp; Expeditions
+                Air Service
               </span>
             </div>
           </Link>

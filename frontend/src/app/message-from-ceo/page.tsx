@@ -37,7 +37,7 @@ export default function MessageFromCeoPage() {
             <div className="flex flex-col">
               <span className="font-display text-2xl font-bold text-white">Chief Executive Officer</span>
               <span className="text-xs uppercase font-bold tracking-widest text-[#83d99d]">
-                Shomakal Aviation &amp; Expeditions Ltd.
+                Shomakal Air Service Ltd.
               </span>
             </div>
           </div>

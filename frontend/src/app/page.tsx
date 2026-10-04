@@ -1025,7 +1025,7 @@ export default function HomePage() {
             Begin Your Sacred Journey
           </h2>
           <p className="text-sm text-[#bec9be] max-w-xl mb-8 leading-relaxed">
-            Subscribe for exclusive Hajj/Umrah royal packages, private aviation slots, early-bird tour deals, and members-only travel dispatch manifests from Shomakal Aviation.
+            Subscribe for exclusive Hajj/Umrah royal packages, private aviation slots, early-bird tour deals, and members-only travel dispatch manifests from Shomakal Air Service.
           </p>
           <form
             className="flex flex-col sm:flex-row gap-3 w-full max-w-md relative z-10"

@@ -18,13 +18,13 @@ export function Footer() {
             <Link href="/" className="flex items-center gap-3">
               <Image
                 src={logoImg}
-                alt="Shomakal Aviation"
+                alt="Shomakal Air Service"
                 width={36}
                 height={36}
                 className="rounded-lg object-contain w-8 h-8"
               />
               <div className="flex flex-col">
-                <span className="font-display text-xl text-white font-bold leading-tight">Shomakal Aviation</span>
+                <span className="font-display text-xl text-white font-bold leading-tight">Shomakal Air Service</span>
                 <span className="text-[10px] uppercase font-bold tracking-widest text-[#83d99d]">Sovereign Air Passage</span>
               </div>
             </Link>
@@ -78,7 +78,7 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-[11px] text-outline">
-          <p>© {new Date().getFullYear()} Shomakal Aviation &amp; Expeditions Ltd. All sovereign rights reserved.</p>
+          <p>© {new Date().getFullYear()} Shomakal Air Service Ltd. All sovereign rights reserved.</p>
           <div className="flex items-center gap-6">
             <Link className="hover:text-[#83d99d] transition-colors" href="/terms">Biosecurity Mandates</Link>
             <Link className="hover:text-[#83d99d] transition-colors" href="/privacy">Avionics Privacy Policy</Link>
