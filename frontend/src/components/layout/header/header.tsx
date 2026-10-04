@@ -11,12 +11,16 @@ import { ThemeToggle } from '@/components/ui/theme-toggle';
 import logoImg from '@/images/shomakal_logo.jpeg';
 
 const navItems = [
-  { label: 'Flight Radar & Corridors', href: '/#world-flight-radar' },
-  { label: 'Curated Stays', href: '/hotels' },
-  { label: 'Visa & Clearances', href: '/visa' },
-  { label: 'Sacred Pilgrimages', href: '/tours' },
-  { label: 'Private Charters', href: '/flights' },
-  { label: 'Dispatch Journal', href: '/blog' },
+  { label: 'Home', href: '/' },
+  { label: 'About Us', href: '/about' },
+  { label: 'Company Profile', href: '/company-profile' },
+  { label: 'Message from CEO', href: '/message-from-ceo' },
+  { label: 'Tours', href: '/tours' },
+  { label: 'Visa', href: '/visa' },
+  { label: 'Hajj & Umrah', href: '/hajj-and-umrah' },
+  { label: 'Hotels', href: '/hotels' },
+  { label: 'Tickets', href: '/flights' },
+  { label: 'Blog', href: '/blog' },
 ];
 
 export function Header() {
@@ -48,42 +52,42 @@ export function Header() {
         borderColor: 'var(--color-header-border)',
       }}
     >
-      <div className="flex justify-between items-center px-16 max-w-[1440px] mx-auto h-full">
-        <div className="flex items-center gap-12">
-          <Link href="/" className="flex items-center gap-3 group">
+      <div className="flex justify-between items-center px-4 sm:px-8 xl:px-12 max-w-[1680px] mx-auto h-full gap-4">
+        <div className="flex items-center gap-6 xl:gap-8 min-w-0">
+          <Link href="/" className="flex items-center gap-3 group shrink-0">
             <Image
               src={logoImg}
               alt="Shomakal Air Service"
-              width={48}
-              height={48}
+              width={44}
+              height={44}
               priority
-              className="rounded-xl object-contain w-11 h-11 transition-transform group-hover:scale-105"
+              className="rounded-xl object-contain w-10 h-10 transition-transform group-hover:scale-105"
             />
             <div className="flex flex-col">
               <span
-                className="font-bold text-lg tracking-wide hidden sm:inline-block leading-tight transition-colors"
+                className="font-bold text-base sm:text-lg tracking-wide hidden sm:inline-block leading-tight transition-colors"
                 style={{ color: 'var(--color-header-text)' }}
               >
                 Shomakal
               </span>
-              <span className="font-bold text-[10px] tracking-widest uppercase hidden sm:inline-block text-[#83d99d]">
+              <span className="font-bold text-[9px] tracking-widest uppercase hidden sm:inline-block text-[#83d99d]">
                 Aviation &amp; Expeditions
               </span>
             </div>
           </Link>
-          <nav className="hidden md:flex gap-8">
+          <nav className="hidden xl:flex items-center gap-3 2xl:gap-4 flex-shrink-0">
             {navItems.map((item) => {
               const active = item.href === '/'
                 ? pathname === '/'
-                : pathname.startsWith(item.href);
+                : pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
               return (
                 <Link
                   key={`${item.label}-${item.href}`}
                   href={item.href}
                   className={cn(
-                    'text-sm tracking-[0.05em] font-semibold transition-colors',
+                    'text-xs 2xl:text-[13px] font-semibold tracking-normal whitespace-nowrap transition-colors py-1',
                     active
-                      ? 'font-bold border-b-2 pb-1'
+                      ? 'font-bold border-b-2 pb-0.5'
                       : 'hover:opacity-100'
                   )}
                   style={{
@@ -104,9 +108,9 @@ export function Header() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4 shrink-0">
           <div
-            className="hidden lg:flex items-center px-4 py-2 rounded-full transition-all hover:opacity-80"
+            className="hidden 2xl:flex items-center px-3 py-1.5 rounded-full transition-all hover:opacity-80"
             style={{
               backgroundColor: 'var(--color-header-search-bg)',
               border: '1px solid var(--color-header-search-border)',
@@ -201,7 +205,7 @@ export function Header() {
           <ThemeToggle />
 
           <button
-            className="lg:hidden p-2 rounded-xl transition-colors hover:bg-white/10"
+            className="xl:hidden p-2 rounded-xl transition-colors hover:bg-white/10"
             style={{ color: 'var(--color-header-text)' }}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle menu"
@@ -213,13 +217,15 @@ export function Header() {
 
       {isMobileMenuOpen && (
         <div
-          className="lg:hidden fixed inset-0 top-20 z-40 animate-slide-up"
+          className="xl:hidden fixed inset-0 top-20 z-40 animate-slide-up overflow-y-auto"
           style={{ backgroundColor: 'var(--color-mobile-menu-bg)' }}
         >
-          <div className="p-6 pt-8">
+          <div className="p-6 pt-8 pb-20">
             <nav className="flex flex-col gap-2">
               {navItems.map((item) => {
-                const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+                const active = item.href === '/'
+                  ? pathname === '/'
+                  : pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
                 return (
                   <Link
                     key={`${item.label}-${item.href}`}
