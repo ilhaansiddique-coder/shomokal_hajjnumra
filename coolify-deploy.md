@@ -1,131 +1,80 @@
-# Flyngo — Coolify Deployment
+# Shomakal Air Service — Coolify Deployment Guide
 
 ## Architecture
+
+Coolify builds directly from source using the repository's `docker-compose.yml` (and `docker-compose.yaml`).
 
 ```
 git push origin main
         │
         ▼
-GitHub Actions ──┬─ backend.yml  → build & push ghcr.io/.../flyngo-backend:main
-                 └─ frontend.yml → build & push ghcr.io/.../flyngo-frontend:main
+Coolify Git Webhook / Redeploy
         │
         ▼
-CI triggers Coolify deploy webhook (COOLIFY_DEPLOY_WEBHOOK)
-        │
-        ▼
-Coolify (on the server)
-   ├─ Resource: flyngo (Docker Compose)   ← docker-compose.yml (pulls images)
-   │   └─ pulls ghcr.io images, runs containers
-   ├─ Service: flyngo-db    (PostgreSQL 16)
-   ├─ Service: flyngo-redis (Redis 7)
-   └─ Service: flyngo-meili (Meilisearch 1.12)
+Coolify Stack (Docker Compose — builds from source)
+   ├─ frontend      (Next.js 15 Standalone)   → Port 3000
+   ├─ backend       (NestJS 11 + Prisma)      → Port 4000
+   ├─ postgres      (PostgreSQL 16 Alpine)    → Port 5432 (internal)
+   ├─ redis         (Redis 7 Alpine)          → Port 6379 (internal)
+   └─ meilisearch   (Meilisearch 1.12)        → Port 7700 (internal)
 ```
 
-**Build ≠ Run.** GitHub Actions builds and pushes images on every push. Coolify
-just pulls and runs them. No builds happen on the server.
+---
 
-## One-time setup
+## Why Coolify Resources Showed "Exited" (Diagnosis)
 
-### 1. GitHub — set Actions Variables
+If you saw these 5 resources in Coolify:
+- `healthchecks-...` (Service Exited)
+- `meilisearch-shomakal` (Service Exited)
+- `postgresql-database-...` (Database Running)
+- `redis-shomakal` (Database Exited)
+- `shomokal_hajjnumra:main-...` (Application Exited)
 
-Repo → **Settings** → **Secrets and variables** → **Actions** → **Variables** tab.
-Create these:
+### 1. `shomokal_hajjnumra:main-...` Exited
+- **Root Cause 1:** `docker-compose.yml` was attempting to pull pre-built images from `ghcr.io/ilhaansiddique-coder/shomakal-air-service-backend:main`, which did not exist on GHCR. Docker failed with image not found.
+- **Root Cause 2:** In the backend `Dockerfile`, `RUN npm prune --omit=dev` ran while `prisma` CLI was only in `devDependencies`. When the entrypoint ran `npx prisma migrate deploy`, it failed because Prisma CLI was missing.
+- **Solution:** Both `docker-compose.yml` and `docker-compose.yaml` now build from `./backend` and `./frontend`. `prisma` has been moved to `dependencies` so migrations always run cleanly.
 
-| Variable | Example |
-|---|---|
-| `NEXT_PUBLIC_SITE_URL` | `https://flyngo.world` |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `pk_live_...` *(optional)* |
-| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | *(optional)* |
-| `NEXT_PUBLIC_GA4_ID` | `G-XXXXXXX` *(optional)* |
-| `NEXT_PUBLIC_GTM_ID` | `GTM-XXXXXXX` *(optional)* |
-| `NEXT_PUBLIC_META_PIXEL_ID` | *(optional)* |
-| `NEXT_PUBLIC_TIKTOK_PIXEL_ID` | *(optional)* |
-| `NEXT_PUBLIC_CLARITY_ID` | *(optional)* |
-| `COOLIFY_DEPLOY_WEBHOOK` | `https://<your-coolify>/webhooks/deploy/<uuid>` |
+### 2. `meilisearch-shomakal` Exited
+- **Root Cause:** Meilisearch v1.12 strictly requires a `MEILI_MASTER_KEY` of **at least 16 bytes** in production mode (`MEILI_ENV=production`). If the key is shorter (e.g. `masterKey` = 9 bytes) or missing, Meilisearch immediately exits with fatal error.
+- **Solution:** Default `MEILI_MASTER_KEY` is now set to a 32+ character key (`shomakal_meili_master_key_secure_32chars`).
 
-`COOLIFY_DEPLOY_WEBHOOK` enables **instant auto-deploy** — CI fires the deploy webhook the moment it finishes pushing the new Docker image. Get the URL from Coolify → your resource → Deploy Webhooks → copy.
+### 3. Redundant / Conflicting Resources (`redis-shomakal`, `healthchecks`, etc.)
+- **Root Cause:** In Coolify, creating standalone databases (`postgresql-database`, `redis-shomakal`, `meilisearch-shomakal`) while ALSO running `shomokal_hajjnumra` (which defines its own Postgres, Redis, and Meilisearch) causes duplicate containers, port conflicts, and high memory usage (OOM kills).
+- **Healthchecks Service:** `healthchecks-ldps4y9bhhjdrraah3yfd23o` is an external cron-monitoring Django app (Healthchecks.io) that requires its own PostgreSQL database and SECRET_KEY. It was created by mistake and is **not needed** by Shomakal Air Service.
 
-### 2. Make ghcr.io packages public (one click per package)
+---
 
-After the first workflow run pushes an image, visit:
-- https://github.com/ilhaansiddique-coder?tab=packages → `flyngo-backend` → **Package settings** → **Change visibility** → **Public**
-- Same for `flyngo-frontend`
+## Recommended Coolify Setup (Clean & Simple)
 
-This lets Coolify pull without a registry token.
+### Step 1: Clean Up Redundant Resources in Coolify
+In Coolify Dashboard under **Project: Shomakal_Air_Service / Environment: production**:
+1. **Delete** `healthchecks-ldps4y9bhhjdrraah3yfd23o` (Not needed, saves RAM).
+2. If you want the all-in-one stack (easiest):
+   - You can delete `redis-shomakal` and `meilisearch-shomakal`, as the compose stack includes its own Redis and Meilisearch containers automatically.
+   - If you want to use Coolify's standalone PostgreSQL (`postgresql-database-iaau6n06gg8gfzxxxzsuz54q`), simply set `DATABASE_URL` in the application environment variables (see below).
 
-### 3. Coolify — provision stateful services
+### Step 2: Configure the Application `shomokal_hajjnumra:main`
+1. Go to **Application: `shomokal_hajjnumra:main`** in Coolify.
+2. In **Configuration**:
+   - **Build Pack:** Docker Compose
+   - **Docker Compose Location:** `docker-compose.yml` (or `docker-compose.yaml`)
+3. Under **Domains / FQDN**:
+   - `frontend`: `https://shomakal.com` (or your domain)
+   - `backend`: `https://api.shomakal.com` (or route through Next.js proxy)
+4. Under **Environment Variables**, set:
+   - `NODE_ENV=production`
+   - `FRONTEND_URL=https://shomakal.com`
+   - `JWT_ACCESS_SECRET=<generate with openssl rand -hex 32>`
+   - `JWT_REFRESH_SECRET=<generate with openssl rand -hex 32>`
+   - `MEILISEARCH_API_KEY=<generate with openssl rand -hex 16>`
+   - *(Optional if using Coolify standalone Postgres)*: `DATABASE_URL=postgresql://<user>:<password>@<coolify-postgres-host>:5432/<db>?schema=public`
 
-Coolify → `+ Add` → **Service** (one each):
-- **PostgreSQL 16** — name `flyngo-db`, env `POSTGRES_USER=flyngo`, `POSTGRES_PASSWORD=...`, `POSTGRES_DB=flyngo`, persistent volume on `/var/lib/postgresql/data`
-- **Redis 7** — name `flyngo-redis`, persistent volume on `/data`, set `REDIS_PASSWORD`
-- **Meilisearch v1.12** — name `flyngo-meili`, env `MEILI_MASTER_KEY=...`, persistent volume on `/meili_data`
-
-### 4. Coolify — add the app resource
-
-**Projects** → `+ New` → `flyngo` → **+ New Resource** → **Docker Compose**:
-- **Git Repo:** `ilhaansiddique-coder/flyngo_tours_n_travels`
-- **Branch:** `main`
-- **Base Directory:** *(empty — defaults to repo root)*
-- **Docker Compose Location:** `docker-compose.yml`
-- **Build Pack:** Docker Compose
-
-⚠️ Make sure Coolify uses `docker-compose.yml` (the default). This file pulls pre-built images from ghcr.io — it does NOT build. If Coolify is set to a different file, change it.
-
-### 5. Coolify — set FQDNs on each service
-
-Click the resource, then each service:
-- `frontend` → FQDN: `https://flyngo.world`
-- `backend` → FQDN: `https://api.flyngo.world`
-
-Coolify adds Traefik labels and TLS automatically.
-
-### 6. Coolify — environment variables
-
-Resource → **Environment Variables** → add these:
-- `DATABASE_URL` — `postgresql://flyngo:<password>@flyngo-db:5432/flyngo?schema=public`
-- `REDIS_HOST=flyngo-redis`, `REDIS_PASSWORD=...`
-- `MEILISEARCH_HOST=http://flyngo-meili:7700`, `MEILISEARCH_API_KEY=...`
-- `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` — `openssl rand -hex 32` each
-- `FRONTEND_URL=https://flyngo.world`
-- `ADMIN_URL=https://flyngo.world`
-- Plus any payment/service keys you use
-
-These override the defaults in `docker-compose.yml`.
-
-## Deploy flow (every push)
-
-1. Push code to `main`
-2. GitHub Actions builds both images (~3-5 min)
-3. CI triggers Coolify deploy webhook → Coolify pulls new images and redeploys
-4. Backend auto-runs `prisma migrate deploy` on startup — no manual steps
-5. Total downtime: ~5 seconds
-
-## Rollback
-
-```bash
-# In the Coolify "Rollback" UI, select the previous image tag.
-# Or edit docker-compose.yml, change :main to :sha-<previous-commit>, redeploy.
-```
-
-## Common issues
-
-| Symptom | Fix |
-|---|---|
-| Workflow login fails | Repo → Settings → Actions → General → Workflow permissions → "Read and write". |
-| Coolify can't pull image | Make ghcr.io packages public (step 2) or add a GitHub PAT to Coolify. |
-| 404 on pages | FQDN not set on service in Coolify, or container crashed. Check logs. |
-| Backend can't reach DB | Service name must be exactly `flyngo-db` — that's the internal DNS name. |
-| Auto-deploy not firing | Get webhook URL from Coolify → Resource → Deploy Webhooks → paste as `COOLIFY_DEPLOY_WEBHOOK` in GitHub Variables. |
-| Migration fails on startup | Check `docker logs flyngo-backend`. Verify `DATABASE_URL` in Coolify env vars. |
-
-## Local development
-
-```bash
-# Option 1: Root-level single command (needs local Postgres + Redis)
-npm run dev             # starts backend + frontend in watch mode
-
-# Option 2: Full Docker stack (Postgres, Redis, Meilisearch included)
-npm run docker:dev      # build from source, start everything
-npm run docker:up       # pull pre-built images from ghcr.io
-npm run docker:down     # stop everything
-```
+### Step 3: Deploy
+Click **Deploy**.
+Coolify will:
+1. Clone `shomokal_hajjnumra:main`.
+2. Build `backend` (NestJS) and `frontend` (Next.js 15 Standalone).
+3. Start Postgres, Redis, Meilisearch, Backend, and Frontend.
+4. Run Prisma database migrations automatically.
+5. Pass health checks and route domain traffic via Traefik.

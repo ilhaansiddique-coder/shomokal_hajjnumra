@@ -1,60 +1,32 @@
-# Shomakal Air Service — Production stack (Coolify default)
-# Images are pre-built by GitHub Actions and pushed to ghcr.io.
-# This file PULLS images — no build happens on the server.
-#
-# Local dev with build-from-source:
-#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+# Shomakal Air Service — Coolify Deployment Stack
+# Builds from source. Coolify will clone the repo and build Docker images locally.
+# Coolify handles routing through its proxy — no host port mappings needed.
 
 services:
   backend:
-    image: ghcr.io/ilhaansiddique-coder/shomakal-air-service-backend:main
-    container_name: shomakal-air-service-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     restart: always
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       BACKEND_HOST: 0.0.0.0
       BACKEND_PORT: 4000
-      DATABASE_URL: ${DATABASE_URL:-postgresql://shomakal:shomakal@postgres:5432/shomakal?schema=public}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://shomakal:${POSTGRES_PASSWORD:-shomakal}@postgres:5432/shomakal?schema=public}
       REDIS_HOST: ${REDIS_HOST:-redis}
       REDIS_PORT: ${REDIS_PORT:-6379}
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-access}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-refresh}
-      JWT_ACCESS_EXPIRY: ${JWT_ACCESS_EXPIRY:-15m}
-      JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY:-7d}
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
-      ADMIN_URL: ${ADMIN_URL:-http://localhost:3001}
+      JWT_ACCESS_EXPIRY: 15m
+      JWT_REFRESH_EXPIRY: 7d
+      FRONTEND_URL: ${FRONTEND_URL:-https://shomakal.com}
+      ADMIN_URL: ${FRONTEND_URL:-https://shomakal.com}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
-      BKASH_API_KEY: ${BKASH_API_KEY:-}
-      BKASH_SECRET_KEY: ${BKASH_SECRET_KEY:-}
-      BKASH_USERNAME: ${BKASH_USERNAME:-}
-      BKASH_PASSWORD: ${BKASH_PASSWORD:-}
-      BKASH_BASE_URL: ${BKASH_BASE_URL:-https://tokenized.sandbox.bka.sh/v1.2.0-beta}
-      NAGAD_MERCHANT_ID: ${NAGAD_MERCHANT_ID:-}
-      NAGAD_SECRET_KEY: ${NAGAD_SECRET_KEY:-}
-      NAGAD_BASE_URL: ${NAGAD_BASE_URL:-}
-      SSLC_STORE_ID: ${SSLC_STORE_ID:-}
-      SSLC_STORE_PASSWORD: ${SSLC_STORE_PASSWORD:-}
-      SSLC_BASE_URL: ${SSLC_BASE_URL:-https://sandbox.sslcommerz.com}
-      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
-      RESEND_API_KEY: ${RESEND_API_KEY:-}
-      EMAIL_FROM: ${EMAIL_FROM:-noreply@shomakalair.com}
-      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
-      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
-      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER:-}
-      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-}
-      FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY:-}
-      FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL:-}
+      EMAIL_FROM: ${EMAIL_FROM:-noreply@shomakal.com}
       MEILISEARCH_HOST: ${MEILISEARCH_HOST:-http://meilisearch:7700}
-      MEILISEARCH_API_KEY: ${MEILISEARCH_API_KEY:-}
-      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID:-}
-      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
-      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
-      R2_BUCKET_NAME: ${R2_BUCKET_NAME:-}
-      R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
-    ports:
-      - '4000:4000'
+      MEILISEARCH_API_KEY: ${MEILISEARCH_API_KEY:-shomakal_meili_master_key_secure_32chars}
     depends_on:
       postgres:
         condition: service_healthy
@@ -65,16 +37,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
+      start_period: 40s
 
   frontend:
-    image: ghcr.io/ilhaansiddique-coder/shomakal-air-service-frontend:main
-    container_name: shomakal-air-service-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     restart: always
     environment:
-      BACKEND_URL: ${BACKEND_URL:-http://backend:4000}
-    ports:
-      - '3000:3000'
+      BACKEND_URL: http://backend:4000
+      NEXT_PUBLIC_SITE_URL: ${FRONTEND_URL:-https://shomakal.com}
     depends_on:
       backend:
         condition: service_started
@@ -83,26 +55,26 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 20s
+      start_period: 30s
 
   postgres:
     image: postgres:16-alpine
-    container_name: shomakal-air-service-postgres
+    restart: always
     environment:
-      POSTGRES_USER: shomakal
+      POSTGRES_USER: ${POSTGRES_USER:-shomakal}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shomakal}
-      POSTGRES_DB: shomakal
+      POSTGRES_DB: ${POSTGRES_DB:-shomakal}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U shomakal']
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-shomakal}']
       interval: 5s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: shomakal-air-service-redis
+    restart: always
     volumes:
       - redis_data:/data
     healthcheck:
@@ -113,10 +85,11 @@ services:
 
   meilisearch:
     image: getmeili/meilisearch:v1.12
-    container_name: shomakal-air-service-meilisearch
+    restart: always
     environment:
-      MEILI_MASTER_KEY: ${MEILISEARCH_API_KEY:-masterKey}
-      MEILI_ENV: development
+      MEILI_MASTER_KEY: ${MEILISEARCH_API_KEY:-shomakal_meili_master_key_secure_32chars}
+      MEILI_ENV: production
+      MEILI_NO_ANALYTICS: 'true'
     volumes:
       - meilisearch_data:/meili_data
 
