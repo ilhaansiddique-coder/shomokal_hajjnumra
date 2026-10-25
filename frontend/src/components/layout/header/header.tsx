@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Search, Menu, X, User, LogOut } from 'lucide-react';
+import { Search, Menu, X, User, LogOut, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth.store';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import logoImg from '@/images/shomakal_logo.jpeg';
@@ -13,8 +13,6 @@ import logoImg from '@/images/shomakal_logo.jpeg';
 const navItems = [
   { label: 'Home', href: '/' },
   { label: 'About Us', href: '/about' },
-  { label: 'Company Profile', href: '/company-profile' },
-  { label: 'Message from CEO', href: '/message-from-ceo' },
   { label: 'Tours', href: '/tours' },
   { label: 'Visa', href: '/visa' },
   { label: 'Hajj & Umrah', href: '/hajj-and-umrah' },
@@ -23,9 +21,16 @@ const navItems = [
   { label: 'Blog', href: '/blog' },
 ];
 
+const aboutMenuItems = [
+  { label: 'Company Profile', href: '/company-profile' },
+  { label: 'Message from CEO', href: '/message-from-ceo' },
+];
+
 export function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAboutMenuOpen, setIsAboutMenuOpen] = useState(false);
+  const [isMobileAboutMenuOpen, setIsMobileAboutMenuOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuthStore();
 
   useEffect(() => {
@@ -41,6 +46,11 @@ export function Header() {
     document.body.style.overflow = isMobileMenuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [isMobileMenuOpen]);
+
+  useEffect(() => {
+    setIsAboutMenuOpen(false);
+    setIsMobileAboutMenuOpen(false);
+  }, [pathname]);
 
   if (pathname.startsWith('/admin')) return null;
 
@@ -80,6 +90,81 @@ export function Header() {
               const active = item.href === '/'
                 ? pathname === '/'
                 : pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+              if (item.href === '/about') {
+                const aboutActive = active || aboutMenuItems.some(({ href }) => pathname.startsWith(href));
+                return (
+                  <div
+                    key={item.href}
+                    className="relative flex items-center gap-0.5 group/about"
+                    onMouseEnter={() => setIsAboutMenuOpen(true)}
+                    onMouseLeave={() => setIsAboutMenuOpen(false)}
+                    onFocus={() => setIsAboutMenuOpen(true)}
+                    onBlur={(event) => {
+                      if (!event.currentTarget.contains(event.relatedTarget)) {
+                        setIsAboutMenuOpen(false);
+                      }
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Escape') setIsAboutMenuOpen(false);
+                    }}
+                  >
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        'text-xs 2xl:text-[13px] font-semibold tracking-normal whitespace-nowrap transition-colors py-1',
+                        aboutActive ? 'font-bold border-b-2 pb-0.5' : 'hover:opacity-100',
+                      )}
+                      style={{
+                        color: aboutActive ? 'var(--color-nav-active)' : 'var(--color-nav-inactive)',
+                        borderColor: aboutActive ? 'var(--color-nav-active)' : 'transparent',
+                      }}
+                    >
+                      {item.label}
+                    </Link>
+                    <button
+                      type="button"
+                      aria-label="Toggle About Us menu"
+                      aria-expanded={isAboutMenuOpen}
+                      onClick={() => setIsAboutMenuOpen((open) => !open)}
+                      className="rounded p-1 transition-colors hover:text-white"
+                      style={{ color: 'var(--color-nav-inactive)' }}
+                    >
+                      <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', isAboutMenuOpen && 'rotate-180')} />
+                    </button>
+                    <div
+                      className={cn(
+                        'absolute left-0 top-full z-50 min-w-52 pt-3',
+                        isAboutMenuOpen ? 'block' : 'hidden',
+                      )}
+                    >
+                      <div
+                        className="overflow-hidden rounded-xl border py-2 shadow-xl backdrop-blur-xl"
+                        style={{
+                          backgroundColor: 'var(--color-header-bg)',
+                          borderColor: 'var(--color-header-border)',
+                        }}
+                      >
+                        {aboutMenuItems.map((subItem) => {
+                          const subItemActive = pathname === subItem.href || pathname.startsWith(`${subItem.href}/`);
+                          return (
+                            <Link
+                              key={subItem.href}
+                              href={subItem.href}
+                              className="block whitespace-nowrap px-4 py-2.5 text-sm font-medium transition-colors hover:bg-white/5"
+                              style={{
+                                color: subItemActive ? 'var(--color-nav-active)' : 'var(--color-nav-inactive)',
+                              }}
+                              onClick={() => setIsAboutMenuOpen(false)}
+                            >
+                              {subItem.label}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
               return (
                 <Link
                   key={`${item.label}-${item.href}`}
@@ -226,6 +311,60 @@ export function Header() {
                 const active = item.href === '/'
                   ? pathname === '/'
                   : pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+                if (item.href === '/about') {
+                  const aboutActive = active || aboutMenuItems.some(({ href }) => pathname.startsWith(href));
+                  return (
+                    <div key={item.href}>
+                      <div className="flex items-center">
+                        <Link
+                          href={item.href}
+                          className="flex-1 rounded-xl px-4 py-4 text-base font-semibold transition-colors"
+                          style={{
+                            color: aboutActive ? 'var(--color-mobile-nav-active)' : 'var(--color-mobile-nav-text)',
+                            backgroundColor: active ? 'var(--color-mobile-nav-bg)' : 'transparent',
+                          }}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          {item.label}
+                        </Link>
+                        <button
+                          type="button"
+                          aria-label="Toggle About Us submenu"
+                          aria-expanded={isMobileAboutMenuOpen}
+                          onClick={() => setIsMobileAboutMenuOpen((open) => !open)}
+                          className="mr-2 rounded-lg p-3"
+                          style={{ color: 'var(--color-mobile-nav-text)' }}
+                        >
+                          <ChevronDown className={cn('h-5 w-5 transition-transform', isMobileAboutMenuOpen && 'rotate-180')} />
+                        </button>
+                      </div>
+                      {isMobileAboutMenuOpen && (
+                        <div className="ml-5 flex flex-col border-l border-white/10 pl-3">
+                          {aboutMenuItems.map((subItem) => {
+                            const subItemActive = pathname === subItem.href || pathname.startsWith(`${subItem.href}/`);
+                            return (
+                              <Link
+                                key={subItem.href}
+                                href={subItem.href}
+                                className="rounded-lg px-4 py-3 text-sm font-medium transition-colors"
+                                style={{
+                                  color: subItemActive ? 'var(--color-mobile-nav-active)' : 'var(--color-mobile-nav-text)',
+                                  backgroundColor: subItemActive ? 'var(--color-mobile-nav-bg)' : 'transparent',
+                                }}
+                                onClick={() => {
+                                  setIsMobileMenuOpen(false);
+                                  setIsMobileAboutMenuOpen(false);
+                                }}
+                              >
+                                {subItem.label}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
                 return (
                   <Link
                     key={`${item.label}-${item.href}`}
