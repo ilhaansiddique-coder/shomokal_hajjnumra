@@ -44,6 +44,16 @@ npm run dev
 Backend → http://localhost:4000 (Swagger at /api/docs)  
 Frontend → http://localhost:3000
 
+### World Flight Map
+
+The home page radar map renders pre-generated Natural Earth 1:110m country paths. To rebuild the simplified Miller-projection data after changing the generator or its inputs, run:
+
+```bash
+npm --prefix frontend run generate:world-map
+```
+
+The generated paths live in `frontend/src/lib/world-map.ts`. Update the Dhaka origin, airport coordinates, flight durations, and start delays in `frontend/src/components/WorldFlightMap.tsx`; the radar view filters are passed in from the home page. Reduced-motion preferences disable aircraft motion and freeze route trails.
+
 ### Docker (full stack: Postgres, Redis, Meilisearch, backend, frontend)
 
 ```bash

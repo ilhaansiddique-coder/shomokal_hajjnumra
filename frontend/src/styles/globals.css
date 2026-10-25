@@ -356,3 +356,309 @@ body {
   -webkit-font-smoothing: antialiased;
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
+
+.wfm-map {
+  width: 100%;
+  overflow: hidden;
+  background: #03110b;
+}
+
+.wfm-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: radial-gradient(ellipse at 52% 45%, rgba(0, 104, 56, 0.13), transparent 64%), #03110b;
+}
+
+.wfm-graticule line {
+  stroke: rgba(255, 255, 255, 0.055);
+  stroke-dasharray: 3 5;
+  stroke-width: 0.7;
+}
+
+.wfm-country {
+  cursor: pointer;
+  transition:
+    fill 220ms ease,
+    stroke 220ms ease,
+    opacity 220ms ease;
+  outline: none;
+}
+
+.wfm-country:hover,
+.wfm-country:focus-visible {
+  stroke: #9ef5b8;
+  stroke-width: 1.5;
+}
+
+.wfm-country[data-origin='true'] {
+  stroke: #9ef5b8;
+  stroke-width: 1;
+}
+
+.wfm-guide,
+.wfm-trail {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.wfm-guide {
+  stroke: rgba(168, 199, 176, 0.22);
+  stroke-dasharray: 2 6;
+  stroke-width: 0.9;
+}
+
+.wfm-routes g[data-animated='true'] .wfm-guide {
+  stroke: rgba(141, 245, 206, 0.68);
+  stroke-dasharray: 5 4;
+  stroke-width: 1.35;
+}
+
+.wfm-routes g[data-dhaka='true'] .wfm-guide {
+  stroke: #ffe088;
+  stroke-dasharray: 12 5;
+  stroke-width: 2.8;
+}
+
+.wfm-trail {
+  stroke-width: 2.4;
+  animation: wfm-trail var(--route-duration) linear infinite;
+  animation-delay: var(--route-delay);
+}
+
+.wfm-routes g[data-dhaka='true'] .wfm-trail {
+  stroke: #ffe088;
+  stroke-width: 3.5;
+}
+
+.wfm-primary-corridor {
+  fill: none;
+  stroke: #ffe088;
+  stroke-dasharray: none;
+  stroke-linecap: round;
+  stroke-width: 3.2;
+  filter: drop-shadow(0 0 3px rgba(255, 224, 136, 0.8));
+  pointer-events: none;
+}
+
+.wfm-aircraft {
+  filter: drop-shadow(0 0 3px rgba(141, 245, 206, 0.95));
+}
+
+.wfm-routes g[data-dhaka='true'] .wfm-aircraft {
+  filter: drop-shadow(0 0 4px rgba(255, 224, 136, 0.95));
+}
+
+.wfm-routes,
+.wfm-origin {
+  pointer-events: none;
+}
+
+.wfm-destination > circle:first-child {
+  fill: #ffe088;
+  stroke: #03110b;
+  stroke-width: 1.2;
+}
+
+.wfm-destination .wfm-ping {
+  fill: none;
+  stroke: #ffe088;
+  stroke-width: 1.1;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: wfm-ping 2.7s ease-out infinite;
+}
+
+.wfm-destination[data-dhaka='true'] > circle:first-child {
+  fill: #9ef5b8;
+  stroke: #062b19;
+  stroke-width: 2;
+}
+
+.wfm-destination[data-dhaka='true'] .wfm-ping {
+  stroke: #83d99d;
+}
+
+.wfm-destination[data-dhaka='true'] text {
+  fill: #9ef5b8;
+  font-size: 11px;
+}
+
+.wfm-destination text,
+.wfm-origin text,
+.wfm-mecca text {
+  fill: #ffe088;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  paint-order: stroke;
+  stroke: #03110b;
+  stroke-linejoin: round;
+  stroke-width: 3px;
+}
+
+.wfm-mecca text {
+  font-size: 11px;
+}
+
+.wfm-origin-glow {
+  opacity: 0.5;
+}
+
+.wfm-mecca,
+.wfm-routes {
+  pointer-events: none;
+}
+
+.wfm-mecca-ring {
+  fill: rgba(211, 173, 82, 0.18);
+  stroke: #f0d987;
+  stroke-width: 1.5;
+}
+
+.wfm-kaaba-front {
+  fill: #11100e;
+  stroke: #c5a24a;
+  stroke-linejoin: round;
+  stroke-width: 0.8;
+}
+
+.wfm-kaaba-band {
+  fill: #d8b75b;
+  stroke: #f0d987;
+  stroke-width: 0.45;
+}
+
+.wfm-kaaba-door {
+  fill: #c5a24a;
+  stroke: #f0d987;
+  stroke-width: 0.5;
+}
+
+.wfm-origin > .wfm-ping {
+  fill: none;
+  stroke: #83d99d;
+  stroke-width: 1.2;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: wfm-ping 3s ease-out infinite;
+}
+
+.wfm-origin > .wfm-ping-delayed {
+  animation-delay: 1.5s;
+}
+
+.wfm-origin > path {
+  fill: #9ef5b8;
+  stroke: #006838;
+  stroke-width: 1;
+}
+
+.wfm-origin .wfm-origin-hole {
+  fill: #006838;
+}
+
+.wfm-tooltip rect {
+  fill: rgba(7, 22, 16, 0.96);
+  stroke: #83d99d;
+  stroke-width: 1;
+}
+
+.wfm-tooltip text {
+  text-anchor: middle;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.wfm-tooltip-country {
+  fill: #fff;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.wfm-tooltip-continent {
+  fill: #9ef5b8;
+  font-size: 8px;
+  font-weight: 600;
+}
+
+.wfm-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  padding: 10px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  background: #0e1e17;
+}
+
+.wfm-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #bec9be;
+  font-size: 10px;
+  font-weight: 600;
+  transition:
+    opacity 220ms ease,
+    color 220ms ease;
+}
+
+.wfm-legend-item[data-dimmed='true'] {
+  opacity: 0.35;
+}
+
+.wfm-legend-item[data-active='true'] {
+  color: #fff;
+}
+
+.wfm-legend-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #385044;
+}
+
+.wfm-legend-item[data-active='true'] .wfm-legend-dot {
+  background: #83d99d;
+  box-shadow: 0 0 9px rgba(131, 217, 157, 0.6);
+}
+
+@keyframes wfm-trail {
+  from {
+    stroke-dashoffset: 0.08;
+  }
+  to {
+    stroke-dashoffset: -1;
+  }
+}
+
+@keyframes wfm-ping {
+  from {
+    opacity: 0.9;
+    transform: scale(0.65);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wfm-trail {
+    animation: none !important;
+    stroke-dashoffset: 0.08 !important;
+    stroke: rgba(131, 217, 157, 0.75);
+  }
+
+  .wfm-destination .wfm-ping,
+  .wfm-origin > .wfm-ping {
+    animation: none !important;
+    opacity: 0.4;
+    transform: scale(1.2);
+  }
+
+  .wfm-country,
+  .wfm-legend-item {
+    transition: none;
+  }
+}
